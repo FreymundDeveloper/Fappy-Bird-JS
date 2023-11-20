@@ -44,5 +44,38 @@ function barrierPair(height, opening, valuePx) {
     this.setValuePx(valuePx);
 }
 
-// const b = new barrierPair(700, 250, 400)
-// document.querySelector('#base-flappy').appendChild(b.element)
+function barriers(height, width, opening, space, notifyPoint) {
+    this.pairs = [
+        new barrierPair(height, opening, width),
+        new barrierPair(height, opening, (width + space)),
+        new barrierPair(height, opening, (width + (space * 2))),
+        new barrierPair(height, opening, (width + (space * 3))),
+        new barrierPair(height, opening, (width + (space * 4)))
+    ];
+
+    const moving = 2;
+
+    this.animation = () => {
+        this.pairs.forEach(pair => {
+            pair.setValuePx(pair.getValuePx() - moving);
+
+            if (pair.getValuePx() < -pair.getWidth()) {
+                pair.setValuePx(pair.getValuePx() + (space * this.pairs.length));
+                pair.randomOpening();
+            }
+
+            const mid = width / 2;
+            const crossMid = ((pair.getValuePx() + moving) >= mid) && (pair.getValuePx() < mid);
+
+            if(crossMid) notifyPoint(); //for the brid
+        });
+    }
+}
+
+const b = new barriers(700, 1200, 250, 350)
+const gameMap = document.querySelector('#base-flappy')
+b.pairs.forEach(pair => gameMap.appendChild(pair.element))
+
+setInterval(() => {
+    b.animation()
+}, 20)
