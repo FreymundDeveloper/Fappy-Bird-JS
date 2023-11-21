@@ -1,13 +1,10 @@
-/*class="progress"class="barrier-body"class="barrier-border"class="barrier"
-class="barrier-pair"class="bird"*/
-
 function newElement(tagName, className) {
     const element = document.createElement(tagName);
     element.className = className;
     return element
 }
 
-function barrier(reverse = false) {
+function Barrier(reverse = false) {
     this.element = newElement('div', 'barrier');
 
     const border = newElement('div', 'barrier-border');
@@ -19,11 +16,11 @@ function barrier(reverse = false) {
     this.setHeight = height => body.style.height = `${height}px`;
 }
 
-function barrierPair(height, opening, valuePx) {
+function BarrierPair(height, opening, valuePx) {
     this.element = newElement('div', 'barrier-pair');
 
-    this.top = new barrier(true);
-    this.bottom = new barrier(false);
+    this.top = new Barrier(true);
+    this.bottom = new Barrier(false);
 
     this.element.appendChild(this.top.element);
     this.element.appendChild(this.bottom.element);
@@ -44,16 +41,16 @@ function barrierPair(height, opening, valuePx) {
     this.setValuePx(valuePx);
 }
 
-function barriers(height, width, opening, space, notifyPoint) {
+function Barriers(height, width, opening, space, notifyPoint) {
     this.pairs = [
-        new barrierPair(height, opening, width),
-        new barrierPair(height, opening, (width + space)),
-        new barrierPair(height, opening, (width + (space * 2))),
-        new barrierPair(height, opening, (width + (space * 3))),
-        new barrierPair(height, opening, (width + (space * 4)))
+        new BarrierPair(height, opening, width),
+        new BarrierPair(height, opening, (width + space)),
+        new BarrierPair(height, opening, (width + (space * 2))),
+        new BarrierPair(height, opening, (width + (space * 3))),
+        new BarrierPair(height, opening, (width + (space * 4)))
     ];
 
-    const moving = 2;
+    const moving = 3;
 
     this.animation = () => {
         this.pairs.forEach(pair => {
@@ -67,12 +64,12 @@ function barriers(height, width, opening, space, notifyPoint) {
             const mid = width / 2;
             const crossMid = ((pair.getValuePx() + moving) >= mid) && (pair.getValuePx() < mid);
 
-            if(crossMid) notifyPoint(); //for the brid
+            if(crossMid) notifyPoint();
         });
     }
 }
 
-function bird(gameHeight) {
+function Bird(gameHeight) {
     let flying = false;
 
     this.element = newElement('img', 'bird');
@@ -96,14 +93,35 @@ function bird(gameHeight) {
     this.setValuePx(gameHeight / 2);
 }
 
-// const b = new barriers(700, 1200, 250, 350)
-// const p = new bird(625)
-// const gameMap = document.querySelector('#base-flappy')
+function Progress() {
+    this.element = newElement('span', 'progress');
+    this.updatePoints = points => {
+        this.element.innerHTML = points;
+    }
+    this.updatePoints(0);
+}
 
-// gameMap.appendChild(p.element)
-// b.pairs.forEach(pair => gameMap.appendChild(pair.element))
+function FlappyBird() {
+    let points = 0;
+    
+    const gameMap = document.querySelector('#base-flappy');
+    const height = gameMap.clientHeight;
+    const width = gameMap.clientWidth;
 
-// setInterval(() => {
-//     b.animation()
-//     p.animation();
-// }, 20)
+    const progress = new Progress();
+    const barriers = new Barriers(height, width, 250, 350, () => progress.updatePoints(++points));
+    const bird = new Bird(height);
+
+    gameMap.appendChild(progress.element);
+    gameMap.appendChild(bird.element);
+    barriers.pairs.forEach(pair => gameMap.appendChild(pair.element));
+
+    this.start = () => {
+        const timeOut = setInterval(() => {
+            barriers.animation();
+            bird.animation();
+        }, 20);
+    }
+}
+
+new FlappyBird().start();
