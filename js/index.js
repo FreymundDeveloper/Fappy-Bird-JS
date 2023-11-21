@@ -72,10 +72,38 @@ function barriers(height, width, opening, space, notifyPoint) {
     }
 }
 
-const b = new barriers(700, 1200, 250, 350)
-const gameMap = document.querySelector('#base-flappy')
-b.pairs.forEach(pair => gameMap.appendChild(pair.element))
+function bird(gameHeight) {
+    let flying = false;
 
-setInterval(() => {
-    b.animation()
-}, 20)
+    this.element = newElement('img', 'bird');
+    this.element.src = 'img/bird.png';
+
+    this.getValuePx = () => parseInt(this.element.style.bottom.split('px')[0]);
+    this.setValuePx = valuePx => this.element.style.bottom = `${valuePx}px`;
+
+    window.onkeydown = press => flying = true;
+    window.onkeyup = press => flying = false;
+
+    this.animation = () => {
+        const newPx = this.getValuePx() + (flying ? 6 : -3.5);
+        const maxHeight = gameHeight - this.element.clientHeight;
+
+        if (newPx <= 0) this.setValuePx(0);
+        else if (newPx >= maxHeight) this.setValuePx(maxHeight);
+        else this.setValuePx(newPx);
+    }
+
+    this.setValuePx(gameHeight / 2);
+}
+
+// const b = new barriers(700, 1200, 250, 350)
+// const p = new bird(625)
+// const gameMap = document.querySelector('#base-flappy')
+
+// gameMap.appendChild(p.element)
+// b.pairs.forEach(pair => gameMap.appendChild(pair.element))
+
+// setInterval(() => {
+//     b.animation()
+//     p.animation();
+// }, 20)
