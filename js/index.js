@@ -125,6 +125,14 @@ function collisionCheck(bird, barriers) {
     return collided;
 }
 
+function retrySpawn() {
+    const retryImg = newElement('img', 'retry');
+    retryImg.src = 'img/retry.png';
+
+    document.body.appendChild(retryImg);
+    window.onkeydown = () => location.reload();
+}
+
 function FlappyBird() {
     let points = 0;
     
@@ -145,7 +153,10 @@ function FlappyBird() {
             barriers.animation();
             bird.animation();
 
-            if (collisionCheck(bird, barriers)) clearInterval(timeOut);
+            if (collisionCheck(bird, barriers)) {
+                clearInterval(timeOut);
+                retrySpawn();
+            }
         }, 20);
     }
 }
